@@ -85,12 +85,7 @@ export function JobStep({ stepId, stepConfig, context, setContext, setStepValid 
   const hasFallback = !!jobConfig.onError?.fallbackStep;
 
   return (
-    <div className="wf-step-body">
-      <div className="wf-step-header">
-        <h2 className="wf-step-title">{stepConfig.title}</h2>
-        {stepConfig.subtitle && <p className="wf-step-subtitle">{stepConfig.subtitle}</p>}
-      </div>
-
+    <div>
       <div className="wf-job">
         {/* Progress Bar */}
         {(isActive || isDone) && (

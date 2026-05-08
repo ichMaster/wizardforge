@@ -2,7 +2,9 @@
 
 A config-driven wizard engine for code conversion and data modernization workflows. Write a YAML config, get a fully functional multi-step wizard — no React component authoring required.
 
-![WizardForge Screenshot](docs/wizard-screenshot.png)
+| Upload | Settings | Convert | Download |
+|--------|----------|---------|----------|
+| ![Upload](docs/screenshot-upload.png) | ![Settings](docs/screenshot-format.png) | ![Convert](docs/screenshot-convert.png) | ![Download](docs/screenshot-download.png) |
 
 ## Quick Start
 
