@@ -11,6 +11,7 @@ import type {
   WizardContextValue,
   FlatStep,
   Artifact,
+  JobAction,
 } from './types';
 import { ExpressionEngine } from './ExpressionEngine';
 
@@ -25,7 +26,8 @@ type Action =
   | { type: 'ADD_ERROR'; stepId: string; field: string; message: string }
   | { type: 'CLEAR_ERRORS'; stepId: string }
   | { type: 'ADD_ARTIFACT'; artifact: Artifact }
-  | { type: 'REMOVE_ARTIFACT'; id: string };
+  | { type: 'REMOVE_ARTIFACT'; id: string }
+  | JobAction;
 
 // ── Reducer ──
 
@@ -105,6 +107,94 @@ function wizardReducer(state: WizardState, action: Action): WizardState {
         lastModifiedAt: now,
       };
 
+    case 'JOB_START':
+      return {
+        ...state,
+        activeJobs: {
+          ...state.activeJobs,
+          [action.stepId]: {
+            jobId: action.jobId,
+            status: 'submitting',
+            progress: 0,
+            retryCount: 0,
+            startedAt: now,
+          },
+        },
+        lastModifiedAt: now,
+      };
+
+    case 'JOB_PROGRESS': {
+      const existing = state.activeJobs[action.stepId];
+      if (!existing) return state;
+      return {
+        ...state,
+        activeJobs: {
+          ...state.activeJobs,
+          [action.stepId]: {
+            ...existing,
+            status: 'running',
+            progress: action.progress,
+            message: action.message,
+            currentFile: action.currentFile,
+            phase: action.phase,
+          },
+        },
+        lastModifiedAt: now,
+      };
+    }
+
+    case 'JOB_COMPLETE': {
+      const existing = state.activeJobs[action.stepId];
+      if (!existing) return state;
+      return {
+        ...state,
+        activeJobs: {
+          ...state.activeJobs,
+          [action.stepId]: {
+            ...existing,
+            status: 'completed',
+            progress: 100,
+            result: action.result,
+            completedAt: now,
+          },
+        },
+        lastModifiedAt: now,
+      };
+    }
+
+    case 'JOB_FAIL': {
+      const existing = state.activeJobs[action.stepId];
+      if (!existing) return state;
+      return {
+        ...state,
+        activeJobs: {
+          ...state.activeJobs,
+          [action.stepId]: {
+            ...existing,
+            status: 'failed',
+            error: action.error,
+            completedAt: now,
+          },
+        },
+        lastModifiedAt: now,
+      };
+    }
+
+    case 'JOB_RESET':
+      return {
+        ...state,
+        activeJobs: {
+          ...state.activeJobs,
+          [action.stepId]: {
+            jobId: null,
+            status: 'idle',
+            progress: 0,
+            retryCount: (state.activeJobs[action.stepId]?.retryCount ?? 0) + 1,
+          },
+        },
+        lastModifiedAt: now,
+      };
+
     default:
       return state;
   }
@@ -145,6 +235,7 @@ function createInitialState(config: WizardConfig, steps: FlatStep[]): WizardStat
     artifacts: [],
     errors: {},
     stepValidity: {},
+    activeJobs: {},
     startedAt: now,
     lastModifiedAt: now,
     wizardId: config.wizard.id,
@@ -240,6 +331,10 @@ export function WizardProvider({ config, children }: WizardProviderProps) {
     dispatch({ type: 'CLEAR_ERRORS', stepId: state.currentStepId });
   }, [state.currentStepId]);
 
+  const dispatchJobAction = useCallback((action: JobAction) => {
+    dispatch(action);
+  }, []);
+
   const resolveExpression = useCallback(
     (expr: string) => expressionEngine.resolve(expr, state.context as Record<string, unknown>),
     [expressionEngine, state.context],
@@ -267,6 +362,7 @@ export function WizardProvider({ config, children }: WizardProviderProps) {
       addError,
       clearErrors,
       resolveExpression,
+      dispatchJobAction,
     }),
     [
       config, steps, state, currentStep, currentStepIndex,
@@ -275,7 +371,7 @@ export function WizardProvider({ config, children }: WizardProviderProps) {
       setContext, getContext,
       addArtifact, removeArtifact,
       setStepValid, addError, clearErrors,
-      resolveExpression,
+      resolveExpression, dispatchJobAction,
     ],
   );
 

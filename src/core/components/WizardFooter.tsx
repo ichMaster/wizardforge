@@ -12,10 +12,14 @@ export function WizardFooter() {
 
   const isCurrentStepValid = state.stepValidity[state.currentStepId] !== false;
 
+  const currentJob = state.activeJobs[state.currentStepId];
+  const jobActive = currentJob &&
+    (currentJob.status === 'submitting' || currentJob.status === 'running' || currentJob.status === 'pending');
+
   return (
-    <footer className="wf-footer">
+    <footer className={`wf-footer${jobActive ? ' wf-footer--job-active' : ''}`}>
       <div className="wf-footer-left">
-        {canGoBack && (
+        {canGoBack && !jobActive && (
           <button className="wf-btn wf-btn--secondary" onClick={prevStep}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="19" y1="12" x2="5" y2="12" />
@@ -26,19 +30,21 @@ export function WizardFooter() {
         )}
       </div>
       <div className="wf-footer-right">
-        <button
-          className="wf-btn wf-btn--primary"
-          onClick={nextStep}
-          disabled={!isCurrentStepValid}
-        >
-          {isLastStep ? 'Finish' : 'Next'}
-          {!isLastStep && (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          )}
-        </button>
+        {!jobActive && (
+          <button
+            className="wf-btn wf-btn--primary"
+            onClick={nextStep}
+            disabled={!isCurrentStepValid}
+          >
+            {isLastStep ? 'Finish' : 'Next'}
+            {!isLastStep && (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            )}
+          </button>
+        )}
       </div>
     </footer>
   );

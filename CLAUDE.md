@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 WizardForge is a config-driven wizard engine for code conversion and data modernization workflows (SAS-to-Python, DB2-to-PostgreSQL, Snowflake-to-Databricks, etc.). A single React component consumes a YAML/JSON config and renders a fully functional multi-step wizard. New conversion workflows are created by writing a config file, not new code.
 
-**Current state:** Phase 1 (MVP) prototype implemented. Specifications in `specifications/` remain the source of truth for the full vision.
+**Current state:** Phase 1 (MVP) + Phase 2 (Backend Integration) implemented. Specifications in `specifications/` remain the source of truth for the full vision.
 
 ## Commands
 
@@ -33,14 +33,17 @@ npx tsc --noEmit # Type-check only
 ```
 src/
   core/                          — framework engine (importable as ./core)
-    types.ts                     — all TypeScript interfaces (WizardConfig, WizardState, StepProps, etc.)
+    types.ts                     — all TypeScript interfaces (WizardConfig, WizardState, StepProps, JobState, etc.)
     ExpressionEngine.ts          — {{...}} template evaluator (comparisons, nested access, interpolation)
     ConfigLoader.ts              — YAML → WizardConfig parser with validation
     WizardProvider.tsx           — React context + reducer (single serializable state store)
     hooks/useWizard.ts           — consumer hook for wizard context
     registry/StepTypeRegistry.ts — singleton plugin registry (type string → component)
     components/                  — shell components (WizardShell, WizardNav, WizardFooter, StepRenderer)
-    steps/                       — built-in step types (UploadStep, FormStep, InfoStep, ReviewStep, DownloadStep)
+    steps/                       — built-in step types (UploadStep, FormStep, InfoStep, ReviewStep, DownloadStep, JobStep)
+    services/
+      BackendService.ts          — fetch wrapper with auth header injection, retry + exponential backoff
+      JobRunner.ts               — job submission, polling loop, mock mode simulation
     index.ts                     — public API + registerBuiltInSteps()
   wizards/                       — YAML wizard configs (loaded via ?raw Vite import)
   styles/wizard.css              — all styles, uses .wf-* prefix, CSS vars for theming
@@ -57,7 +60,7 @@ specifications/                  — full spec docs (framework spec + user guide
 - **State is a single serializable store** (`WizardState` in WizardProvider) managed via `useReducer`. All step data accumulates in `state.context` keyed by field IDs.
 - **CSS class prefix:** all classes use `wf-*` to avoid conflicts with host apps. Theme colors are injected as CSS custom properties (`--wf-primary`, etc.).
 
-## Built-in Step Types (Phase 1)
+## Built-in Step Types
 
 | Type | Component | What it does |
 |------|-----------|-------------|
@@ -66,10 +69,19 @@ specifications/                  — full spec docs (framework spec + user guide
 | `info` | InfoStep | Read-only cards/text display |
 | `review` | ReviewStep | Summary of collected context data |
 | `download` | DownloadStep | Download cards with links |
+| `job` | JobStep | Async backend job with progress polling, retry, mock mode |
+
+## Backend Integration (Phase 2)
+
+- **BackendService** handles all API calls — auto-injects auth headers (bearer/cookie/api-key from wizard config), retries transient failures with exponential backoff.
+- **JobRunner** manages the full job lifecycle: submit → poll → complete/fail. Supports mock mode for development (configurable via `mock.enabled` in step config).
+- **Job step config** declares `endpoint`, `bodyMapping` (with `{{...}}` expression resolution), `pollingEndpoint`, `pollingIntervalMs`, `timeoutMs`, `resultKey`, `progressMapping`, `onError` (retryable + fallbackStep), `autoAdvance`, and `mock`.
+- Job state is tracked in `WizardState.activeJobs` keyed by step ID. Footer navigation hides during active jobs.
+- **RetryPolicy** is configurable globally (`wizard.settings.retryPolicy`) and per-step (`config.onError`).
 
 ## Implementation Status
 
 1. **Phase 1 (MVP)** — done: WizardProvider, expression engine, StepRenderer, built-in types (form/info/upload/download/review), linear nav, config validation, theming
-2. **Phase 2 (Backend Integration)** — not started: `job` step type with polling, async progress, error handling + retry, auth header injection, mock backend mode
+2. **Phase 2 (Backend Integration)** — done: `job` step type with polling, async progress, error handling + retry, auth header injection, mock backend mode
 3. **Phase 3 (Advanced Features)** — not started: conditional transitions + skip logic, `diff-review` step, state persistence + resume, `selection`/`confirmation` steps, custom step plugin API
 4. **Phase 4 (Polish)** — not started: responsive layouts, a11y audit, CLI tooling, docs site

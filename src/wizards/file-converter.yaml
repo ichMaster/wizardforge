@@ -42,6 +42,10 @@ wizard:
       title: "Review"
       steps: [review_settings]
 
+    - id: "convert"
+      title: "Convert"
+      steps: [run_conversion]
+
     - id: "output"
       title: "Download"
       steps: [download_results]
@@ -158,6 +162,50 @@ steps:
               value: "{{context.headerRow}}"
             - label: "Pretty print"
               value: "{{context.prettyPrint}}"
+
+  run_conversion:
+    type: "job"
+    title: "Converting Your Files"
+    subtitle: "This may take a moment depending on file size"
+    config:
+      endpoint: "/api/convert"
+      method: "POST"
+      bodyMapping:
+        format: "{{context.outputFormat}}"
+        encoding: "{{context.encoding}}"
+        headerRow: "{{context.headerRow}}"
+        dateFormat: "{{context.dateFormat}}"
+        prettyPrint: "{{context.prettyPrint}}"
+      async: true
+      pollingEndpoint: "/api/jobs/{{context.jobId}}/status"
+      pollingIntervalMs: 2000
+      timeoutMs: 300000
+      resultKey: "conversionResult"
+      progressMapping:
+        percent: "progress.percent"
+        message: "progress.message"
+        currentFile: "progress.currentFile"
+      onError:
+        retryable: true
+        maxRetries: 2
+        fallbackStep: "configure_options"
+      autoAdvance: true
+      mock:
+        enabled: true
+        latencyMs: 4000
+        progressSteps:
+          - { at: 0, message: "Preparing files..." }
+          - { at: 15, message: "Reading source data..." }
+          - { at: 35, message: "Parsing column types..." }
+          - { at: 55, message: "Converting to target format..." }
+          - { at: 75, message: "Applying formatting options..." }
+          - { at: 90, message: "Validating output..." }
+          - { at: 100, message: "Conversion complete!" }
+        result:
+          filesConverted: 3
+          totalRows: 15420
+          outputFormat: "parquet"
+          warnings: 0
 
   download_results:
     type: "download"

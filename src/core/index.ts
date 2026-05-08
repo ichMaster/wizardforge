@@ -15,6 +15,10 @@ export { FormStep } from './steps/FormStep';
 export { InfoStep } from './steps/InfoStep';
 export { ReviewStep } from './steps/ReviewStep';
 export { DownloadStep } from './steps/DownloadStep';
+export { JobStep } from './steps/JobStep';
+
+export { BackendService, BackendError } from './services/BackendService';
+export { JobRunner } from './services/JobRunner';
 
 export type {
   WizardConfig,
@@ -28,6 +32,13 @@ export type {
   PhaseConfig,
   ThemeConfig,
   ValidationResult,
+  JobConfig,
+  JobState,
+  JobStatus,
+  JobAction,
+  MockConfig,
+  RetryPolicy,
+  AuthConfig,
 } from './types';
 
 import { StepTypeRegistry } from './registry/StepTypeRegistry';
@@ -36,6 +47,7 @@ import { FormStep } from './steps/FormStep';
 import { InfoStep } from './steps/InfoStep';
 import { ReviewStep } from './steps/ReviewStep';
 import { DownloadStep } from './steps/DownloadStep';
+import { JobStep } from './steps/JobStep';
 
 export function registerBuiltInSteps(): void {
   StepTypeRegistry.register({ type: 'upload', component: UploadStep });
@@ -43,4 +55,5 @@ export function registerBuiltInSteps(): void {
   StepTypeRegistry.register({ type: 'info', component: InfoStep });
   StepTypeRegistry.register({ type: 'review', component: ReviewStep });
   StepTypeRegistry.register({ type: 'download', component: DownloadStep });
+  StepTypeRegistry.register({ type: 'job', component: JobStep });
 }

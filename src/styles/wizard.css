@@ -799,3 +799,150 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ── Job Step ── */
+
+.wf-job {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.wf-job-progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wf-job-progress-track {
+  flex: 1;
+  height: 10px;
+  background: var(--wf-border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.wf-job-progress-bar {
+  height: 100%;
+  background: var(--wf-primary);
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+.wf-job-progress-bar--done {
+  background: var(--wf-success);
+}
+
+.wf-job-progress-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wf-text);
+  min-width: 42px;
+  text-align: right;
+}
+
+.wf-job-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--wf-radius);
+}
+
+.wf-job-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--wf-border);
+  border-top-color: var(--wf-primary);
+  border-radius: 50%;
+  animation: wf-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes wf-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wf-job-status-text {
+  font-size: 14px;
+  color: var(--wf-text);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wf-job-current-file {
+  font-size: 12px;
+  color: var(--wf-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.wf-job-phase {
+  font-size: 12px;
+  color: var(--wf-text-secondary);
+  text-align: center;
+}
+
+.wf-job-phase strong {
+  color: var(--wf-text);
+  text-transform: capitalize;
+}
+
+.wf-job-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+}
+
+.wf-job-done-icon {
+  color: var(--wf-success);
+}
+
+.wf-job-done-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--wf-text);
+  margin: 0;
+}
+
+.wf-job-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.wf-job-error-icon {
+  color: var(--wf-error);
+}
+
+.wf-job-error-text {
+  font-size: 14px;
+  color: var(--wf-error);
+  margin: 0;
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+.wf-job-error-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* ── Footer: hide during active job ── */
+
+.wf-footer--job-active .wf-btn {
+  visibility: hidden;
+}

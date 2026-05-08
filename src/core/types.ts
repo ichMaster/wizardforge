@@ -24,6 +24,7 @@ export interface WizardSettings {
   persistKey?: string;
   showProgressBar?: boolean;
   progressStyle?: 'steps' | 'bar' | 'fraction' | 'none';
+  retryPolicy?: RetryPolicy;
 }
 
 export interface PhaseConfig {
@@ -80,6 +81,64 @@ export interface ThemeConfig {
   spacing?: 'compact' | 'comfortable' | 'spacious';
 }
 
+// ── Job configuration (within step config) ──
+
+export interface JobConfig {
+  endpoint: string;
+  method?: 'POST' | 'PUT' | 'PATCH';
+  bodyMapping?: Record<string, unknown>;
+  async?: boolean;
+  pollingEndpoint?: string;
+  pollingIntervalMs?: number;
+  timeoutMs?: number;
+  resultKey?: string;
+  progressSource?: 'polling';
+  progressMapping?: {
+    percent?: string;
+    currentFile?: string;
+    message?: string;
+    phase?: string;
+  };
+  onError?: {
+    retryable?: boolean;
+    maxRetries?: number;
+    fallbackStep?: string;
+  };
+  autoAdvance?: boolean;
+  mock?: MockConfig;
+}
+
+export interface MockConfig {
+  enabled: string | boolean;
+  latencyMs?: number;
+  progressSteps?: { at: number; message: string }[];
+  result?: unknown;
+}
+
+export interface RetryPolicy {
+  maxRetries?: number;
+  backoffMs?: number[];
+  retryableStatusCodes?: number[];
+}
+
+// ── Job runtime state ──
+
+export type JobStatus = 'idle' | 'submitting' | 'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timeout';
+
+export interface JobState {
+  jobId: string | null;
+  status: JobStatus;
+  progress: number;
+  message?: string;
+  currentFile?: string;
+  phase?: string;
+  result?: unknown;
+  error?: string;
+  startedAt?: string;
+  completedAt?: string;
+  retryCount: number;
+}
+
 // ── Runtime state ──
 
 export interface WizardState {
@@ -91,6 +150,7 @@ export interface WizardState {
   artifacts: Artifact[];
   errors: Record<string, StepError[]>;
   stepValidity: Record<string, boolean>;
+  activeJobs: Record<string, JobState>;
   startedAt: string;
   lastModifiedAt: string;
   wizardId: string;
@@ -186,4 +246,13 @@ export interface WizardContextValue {
   clearErrors: () => void;
 
   resolveExpression: (expr: string) => unknown;
+
+  dispatchJobAction: (action: JobAction) => void;
 }
+
+export type JobAction =
+  | { type: 'JOB_START'; stepId: string; jobId: string }
+  | { type: 'JOB_PROGRESS'; stepId: string; progress: number; message?: string; currentFile?: string; phase?: string }
+  | { type: 'JOB_COMPLETE'; stepId: string; result: unknown }
+  | { type: 'JOB_FAIL'; stepId: string; error: string }
+  | { type: 'JOB_RESET'; stepId: string };
