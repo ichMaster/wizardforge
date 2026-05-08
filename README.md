@@ -257,6 +257,18 @@ src/
   styles/wizard.css         — all styles (wf-* prefix, CSS vars)
 ```
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Getting Started](docs/getting-started.md) | Installation, first wizard, key concepts |
+| [Configuration Reference](docs/configuration-reference.md) | Complete YAML schema — settings, auth, variables, phases, steps |
+| [Step Types Reference](docs/step-types.md) | All built-in step types with every config option |
+| [Backend Integration](docs/backend-integration.md) | Job lifecycle, polling, auth, retry, mock mode, API contracts |
+| [Expression Engine](docs/expressions.md) | `{{...}}` template syntax, namespaces, comparisons |
+| [Theming](docs/theming.md) | Colors, CSS custom properties, dark mode, class naming |
+| [Plugin Guide](docs/plugins.md) | Building and registering custom step types |
+
 ## Roadmap
 
 - [x] **Phase 1** — Core engine, built-in steps, linear navigation, theming
