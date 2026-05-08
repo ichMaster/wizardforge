@@ -6,49 +6,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 WizardForge is a config-driven wizard engine for code conversion and data modernization workflows (SAS-to-Python, DB2-to-PostgreSQL, Snowflake-to-Databricks, etc.). A single React component consumes a YAML/JSON config and renders a fully functional multi-step wizard. New conversion workflows are created by writing a config file, not new code.
 
-**Current state:** specification only — no implementation code exists yet. The two spec documents in `specifications/` are the source of truth:
-- `wizard-framework-spec.md` — full technical specification (architecture, schemas, plugin API, state machine, backend contracts)
-- `wizardforge-user-guide.md` — practical guide for config authors
+**Current state:** Phase 1 (MVP) prototype implemented. Specifications in `specifications/` remain the source of truth for the full vision.
 
-## Architecture (from spec)
+## Commands
+
+```bash
+npm run dev      # Start Vite dev server (http://localhost:5173)
+npm run build    # Type-check + production build (outputs to dist/)
+npx tsc --noEmit # Type-check only
+```
+
+## Architecture
 
 **Component hierarchy:**
 ```
-<WizardProvider config={config}>   — context provider + state store
-  <WizardShell>                    — layout wrapper
-    <WizardNav />                  — phase/step navigation, progress
-    <WizardContent>
-      <StepRenderer step={…} />   — resolves step type → React component
-    </WizardContent>
-    <WizardFooter />               — back/next/submit buttons
+<WizardProvider config={config}>   — context provider + state store (React context + useReducer)
+  <WizardShell>                    — layout wrapper, applies theme CSS vars
+    <WizardNav />                  — phase/step navigation with progress indicators
+    <StepRenderer />               — resolves step type → component via StepTypeRegistry
+    <WizardFooter />               — back/next buttons, validates before advancing
   </WizardShell>
 </WizardProvider>
 ```
 
-**Planned project structure:**
+**Source layout:**
 ```
-packages/
-  core/src/          — framework engine (React components, hooks, expression engine, state machine, step registry)
-  cli/               — config validation + scaffolding CLI
-wizards/             — YAML/JSON config files for specific wizard instances
-examples/            — integration examples (Next.js, Vite, migVisor)
+src/
+  core/                          — framework engine (importable as ./core)
+    types.ts                     — all TypeScript interfaces (WizardConfig, WizardState, StepProps, etc.)
+    ExpressionEngine.ts          — {{...}} template evaluator (comparisons, nested access, interpolation)
+    ConfigLoader.ts              — YAML → WizardConfig parser with validation
+    WizardProvider.tsx           — React context + reducer (single serializable state store)
+    hooks/useWizard.ts           — consumer hook for wizard context
+    registry/StepTypeRegistry.ts — singleton plugin registry (type string → component)
+    components/                  — shell components (WizardShell, WizardNav, WizardFooter, StepRenderer)
+    steps/                       — built-in step types (UploadStep, FormStep, InfoStep, ReviewStep, DownloadStep)
+    index.ts                     — public API + registerBuiltInSteps()
+  wizards/                       — YAML wizard configs (loaded via ?raw Vite import)
+  styles/wizard.css              — all styles, uses .wf-* prefix, CSS vars for theming
+  App.tsx                        — demo app that loads file-converter.yaml
+  main.tsx                       — entry point, calls registerBuiltInSteps() before render
+specifications/                  — full spec docs (framework spec + user guide)
 ```
 
 ## Key Design Decisions
 
 - **Config over code:** standard wizards require zero React component authoring. All behavior is declared in YAML/JSON.
 - **Expression engine** uses `{{...}}` template syntax — supports variable lookup, comparisons, null checks, nested access, array length, string interpolation. Deliberately does NOT support arbitrary JS, function calls, or imports.
-- **Plugin system:** custom step types are registered via `StepTypePlugin` interface (component + validate + onEnter/onLeave hooks).
-- **State is a single serializable store** (`WizardState`) — enables pause/resume, undo, debug. Persists to localStorage or backend.
-- **Backend-agnostic:** the framework calls endpoints defined in config. Sync ops return `{ status, data }`. Async jobs use a submit → poll → result pattern with `jobId`.
+- **Plugin system:** custom step types are registered via `StepTypePlugin` interface (component + validate + onEnter/onLeave hooks) in the singleton `StepTypeRegistry`.
+- **State is a single serializable store** (`WizardState` in WizardProvider) managed via `useReducer`. All step data accumulates in `state.context` keyed by field IDs.
+- **CSS class prefix:** all classes use `wf-*` to avoid conflicts with host apps. Theme colors are injected as CSS custom properties (`--wf-primary`, etc.).
 
-## Built-in Step Types
+## Built-in Step Types (Phase 1)
 
-`upload`, `form`, `info`, `review`, `job`, `diff-review`, `download`, `selection`, `confirmation`, `redirect`, `custom`
+| Type | Component | What it does |
+|------|-----------|-------------|
+| `upload` | UploadStep | Drag-drop file upload, stores artifacts |
+| `form` | FormStep | Dynamic fields (text, select, radio-cards, toggle, etc.) |
+| `info` | InfoStep | Read-only cards/text display |
+| `review` | ReviewStep | Summary of collected context data |
+| `download` | DownloadStep | Download cards with links |
 
-## Implementation Phases (from spec)
+## Implementation Status
 
-1. **Foundation (MVP):** WizardProvider, expression engine, StepRenderer, built-in types (form/info/upload/download), linear nav, config validation
-2. **Backend Integration:** job step + polling, progress display, error handling + retry, auth, mock mode
-3. **Advanced Features:** conditional transitions, diff-review, state persistence, review step, plugin API
-4. **Polish:** theming, responsive layouts, a11y audit, CLI tooling, docs site, migVisor integration
+1. **Phase 1 (MVP)** — done: WizardProvider, expression engine, StepRenderer, built-in types (form/info/upload/download/review), linear nav, config validation, theming
+2. **Phase 2 (Backend Integration)** — not started: `job` step type with polling, async progress, error handling + retry, auth header injection, mock backend mode
+3. **Phase 3 (Advanced Features)** — not started: conditional transitions + skip logic, `diff-review` step, state persistence + resume, `selection`/`confirmation` steps, custom step plugin API
+4. **Phase 4 (Polish)** — not started: responsive layouts, a11y audit, CLI tooling, docs site

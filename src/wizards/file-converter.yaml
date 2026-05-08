@@ -1,0 +1,179 @@
+wizard:
+  id: "file-converter"
+  version: "1.0.0"
+  title: "File Format Converter"
+  description: "Upload files, choose an output format, and convert them"
+
+  settings:
+    allowBackNavigation: true
+    showProgressBar: true
+    progressStyle: "steps"
+
+  variables:
+    supportedFormats: [".csv", ".xlsx", ".json", ".xml"]
+    maxUploadSizeMB: 100
+
+  theme:
+    colors:
+      primary: "#2563eb"
+      primaryHover: "#1d4ed8"
+      success: "#16a34a"
+      warning: "#d97706"
+      error: "#dc2626"
+      background: "#ffffff"
+      surface: "#f8fafc"
+      text: "#1e293b"
+      textSecondary: "#64748b"
+      border: "#e2e8f0"
+    borderRadius: "8px"
+    fontFamily: "Inter, system-ui, -apple-system, sans-serif"
+    spacing: "comfortable"
+
+  phases:
+    - id: "input"
+      title: "Upload"
+      steps: [upload_files]
+
+    - id: "configure"
+      title: "Settings"
+      steps: [select_format, configure_options]
+
+    - id: "review"
+      title: "Review"
+      steps: [review_settings]
+
+    - id: "output"
+      title: "Download"
+      steps: [download_results]
+
+steps:
+  upload_files:
+    type: "upload"
+    title: "Upload Your Files"
+    subtitle: "Select the files you want to convert"
+    required: true
+    config:
+      multiple: true
+      accept: [".csv", ".xlsx", ".json", ".xml", ".tsv"]
+      maxFiles: 20
+      maxSizeMB: 100
+      dropzoneText: "Drag your data files here or click to browse"
+      showFileList: true
+    validation:
+      - rule: "minFiles"
+        value: 1
+        message: "Please upload at least one file"
+
+  select_format:
+    type: "form"
+    title: "Select Output Format"
+    subtitle: "Choose the format you want to convert your files to"
+    config:
+      fields:
+        - id: "outputFormat"
+          type: "radio-cards"
+          label: "Target Format"
+          required: true
+          options:
+            - value: "csv"
+              label: "CSV"
+              description: "Comma-separated values. Universal, simple, widely supported."
+            - value: "json"
+              label: "JSON"
+              description: "JavaScript Object Notation. Great for APIs and web applications."
+            - value: "parquet"
+              label: "Parquet"
+              description: "Columnar storage. Best for analytics and large datasets."
+            - value: "xlsx"
+              label: "Excel"
+              description: "Microsoft Excel format. Best for sharing with business users."
+
+  configure_options:
+    type: "form"
+    title: "Conversion Options"
+    subtitle: "Fine-tune how your files are converted"
+    config:
+      sections:
+        - title: "General"
+          fields:
+            - id: "encoding"
+              type: "select"
+              label: "Text Encoding"
+              options: ["UTF-8", "ASCII", "ISO-8859-1", "Windows-1252"]
+              default: "UTF-8"
+
+            - id: "headerRow"
+              type: "toggle"
+              label: "First row contains headers"
+              default: true
+
+        - title: "Formatting"
+          fields:
+            - id: "dateFormat"
+              type: "select"
+              label: "Date Format"
+              options:
+                - value: "YYYY-MM-DD"
+                  label: "YYYY-MM-DD (ISO 8601)"
+                - value: "MM/DD/YYYY"
+                  label: "MM/DD/YYYY (US)"
+                - value: "DD/MM/YYYY"
+                  label: "DD/MM/YYYY (International)"
+              default: "YYYY-MM-DD"
+
+            - id: "nullValue"
+              type: "text"
+              label: "NULL representation"
+              placeholder: "e.g., NULL, N/A, empty"
+              default: ""
+
+            - id: "prettyPrint"
+              type: "toggle"
+              label: "Pretty-print output"
+              default: true
+
+  review_settings:
+    type: "review"
+    title: "Review Your Settings"
+    subtitle: "Confirm everything looks correct before converting"
+    config:
+      sections:
+        - title: "Source Files"
+          fields:
+            - label: "Files to convert"
+              value: "{{context.uploadedFiles.length}} file(s)"
+
+        - title: "Output"
+          fields:
+            - label: "Target format"
+              value: "{{context.outputFormat}}"
+            - label: "Encoding"
+              value: "{{context.encoding}}"
+            - label: "Date format"
+              value: "{{context.dateFormat}}"
+
+        - title: "Options"
+          fields:
+            - label: "Header row"
+              value: "{{context.headerRow}}"
+            - label: "Pretty print"
+              value: "{{context.prettyPrint}}"
+
+  download_results:
+    type: "download"
+    title: "Download Converted Files"
+    config:
+      completionMessage: "Your files are ready for download!"
+      sources:
+        - id: "converted"
+          label: "Converted Files"
+          description: "All files converted to the selected format"
+          endpoint: "/api/download/converted"
+          format: "zip"
+          primary: true
+
+        - id: "report"
+          label: "Conversion Report"
+          description: "Summary of the conversion with any warnings"
+          endpoint: "/api/download/report"
+          format: "pdf"

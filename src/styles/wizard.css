@@ -1,0 +1,801 @@
+/* ── CSS Variables (defaults, overridden by theme config) ── */
+
+:root {
+  --wf-primary: #2563eb;
+  --wf-primary-hover: #1d4ed8;
+  --wf-success: #16a34a;
+  --wf-warning: #d97706;
+  --wf-error: #dc2626;
+  --wf-background: #ffffff;
+  --wf-surface: #f8fafc;
+  --wf-text: #1e293b;
+  --wf-text-secondary: #64748b;
+  --wf-border: #e2e8f0;
+  --wf-radius: 8px;
+  --wf-font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Reset & Base ── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--wf-font);
+  color: var(--wf-text);
+  background: var(--wf-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App Shell ── */
+
+.wf-app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.wf-app-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.wf-app-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--wf-text);
+  margin: 0 0 8px;
+}
+
+.wf-app-desc {
+  font-size: 16px;
+  color: var(--wf-text-secondary);
+  margin: 0;
+}
+
+.wf-app-error {
+  max-width: 600px;
+  margin: 80px auto;
+  text-align: center;
+  color: var(--wf-error);
+}
+
+.wf-app-error pre {
+  background: #fef2f2;
+  padding: 16px;
+  border-radius: var(--wf-radius);
+  text-align: left;
+  overflow-x: auto;
+}
+
+.wf-app-loading {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--wf-text-secondary);
+  font-size: 16px;
+}
+
+/* ── Wizard Container ── */
+
+.wf-wizard {
+  background: var(--wf-background);
+  border: 1px solid var(--wf-border);
+  border-radius: calc(var(--wf-radius) * 1.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* ── Navigation ── */
+
+.wf-nav {
+  background: var(--wf-surface);
+  border-bottom: 1px solid var(--wf-border);
+  padding: 24px 32px 20px;
+}
+
+.wf-nav-phases {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.wf-nav-phase-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.wf-nav-connector {
+  width: 48px;
+  height: 2px;
+  background: var(--wf-border);
+  flex-shrink: 0;
+}
+
+.wf-nav-connector--done {
+  background: var(--wf-success);
+}
+
+.wf-nav-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 12px;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.wf-nav-phase:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.wf-nav-phase:not(:disabled):hover .wf-nav-indicator {
+  transform: scale(1.1);
+}
+
+.wf-nav-indicator {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.wf-nav-phase--upcoming .wf-nav-indicator {
+  background: var(--wf-background);
+  border: 2px solid var(--wf-border);
+  color: var(--wf-text-secondary);
+}
+
+.wf-nav-phase--active .wf-nav-indicator {
+  background: var(--wf-primary);
+  border: 2px solid var(--wf-primary);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.wf-nav-phase--completed .wf-nav-indicator {
+  background: var(--wf-success);
+  border: 2px solid var(--wf-success);
+  color: white;
+}
+
+.wf-nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wf-nav-phase--upcoming .wf-nav-label {
+  color: var(--wf-text-secondary);
+}
+
+.wf-nav-phase--active .wf-nav-label {
+  color: var(--wf-primary);
+  font-weight: 600;
+}
+
+.wf-nav-phase--completed .wf-nav-label {
+  color: var(--wf-success);
+}
+
+.wf-nav-progress-text {
+  text-align: center;
+  font-size: 12px;
+  color: var(--wf-text-secondary);
+  margin-top: 12px;
+}
+
+/* ── Content Area ── */
+
+.wf-content {
+  padding: 32px;
+  min-height: 360px;
+}
+
+.wf-step-header {
+  margin-bottom: 28px;
+}
+
+.wf-step-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--wf-text);
+  margin: 0 0 6px;
+}
+
+.wf-step-subtitle {
+  font-size: 15px;
+  color: var(--wf-text-secondary);
+  margin: 0;
+}
+
+.wf-step-body {
+  animation: wf-fade-in 0.25s ease-out;
+}
+
+@keyframes wf-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.wf-step-error {
+  padding: 24px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--wf-radius);
+  color: var(--wf-error);
+}
+
+.wf-step-error code {
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* ── Footer ── */
+
+.wf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-top: 1px solid var(--wf-border);
+  background: var(--wf-surface);
+}
+
+.wf-footer-left,
+.wf-footer-right {
+  display: flex;
+  gap: 12px;
+}
+
+/* ── Buttons ── */
+
+.wf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: var(--wf-radius);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.wf-btn--primary {
+  background: var(--wf-primary);
+  color: white;
+}
+
+.wf-btn--primary:hover:not(:disabled) {
+  background: var(--wf-primary-hover);
+}
+
+.wf-btn--primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.wf-btn--secondary {
+  background: var(--wf-background);
+  color: var(--wf-text);
+  border: 1px solid var(--wf-border);
+}
+
+.wf-btn--secondary:hover:not(:disabled) {
+  background: var(--wf-surface);
+  border-color: #cbd5e1;
+}
+
+/* ── Upload Step ── */
+
+.wf-upload-dropzone {
+  border: 2px dashed var(--wf-border);
+  border-radius: var(--wf-radius);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--wf-surface);
+}
+
+.wf-upload-dropzone:hover,
+.wf-upload-dropzone--active {
+  border-color: var(--wf-primary);
+  background: rgba(37, 99, 235, 0.03);
+}
+
+.wf-upload-dropzone-icon {
+  color: var(--wf-text-secondary);
+  margin-bottom: 12px;
+}
+
+.wf-upload-dropzone--active .wf-upload-dropzone-icon {
+  color: var(--wf-primary);
+}
+
+.wf-upload-dropzone-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--wf-text);
+  margin: 0 0 6px;
+}
+
+.wf-upload-dropzone-hint {
+  font-size: 13px;
+  color: var(--wf-text-secondary);
+  margin: 0;
+}
+
+.wf-upload-filelist {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-upload-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: calc(var(--wf-radius) * 0.75);
+  font-size: 14px;
+}
+
+.wf-upload-file-name {
+  flex: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-upload-file-size {
+  color: var(--wf-text-secondary);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.wf-upload-file-remove {
+  background: none;
+  border: none;
+  color: var(--wf-text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.wf-upload-file-remove:hover {
+  color: var(--wf-error);
+  background: #fef2f2;
+}
+
+/* ── Form Step ── */
+
+.wf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wf-form-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--wf-text);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.wf-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wf-form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--wf-text);
+}
+
+.wf-form-required {
+  color: var(--wf-error);
+  margin-left: 2px;
+}
+
+.wf-form-description {
+  font-size: 13px;
+  color: var(--wf-text-secondary);
+  margin: 0;
+}
+
+.wf-form-input,
+.wf-form-textarea,
+.wf-form-select {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--wf-border);
+  border-radius: calc(var(--wf-radius) * 0.75);
+  background: var(--wf-background);
+  color: var(--wf-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.wf-form-input:focus,
+.wf-form-textarea:focus,
+.wf-form-select:focus {
+  outline: none;
+  border-color: var(--wf-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.wf-form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.wf-form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 36px;
+}
+
+/* Radio / Radio Cards */
+
+.wf-form-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wf-form-radio-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.wf-form-radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--wf-border);
+  border-radius: calc(var(--wf-radius) * 0.75);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--wf-background);
+}
+
+.wf-form-radio-option:hover {
+  border-color: #cbd5e1;
+  background: var(--wf-surface);
+}
+
+.wf-form-radio-option--selected {
+  border-color: var(--wf-primary);
+  background: rgba(37, 99, 235, 0.03);
+  box-shadow: 0 0 0 1px var(--wf-primary);
+}
+
+.wf-form-radio-cards .wf-form-radio-option {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 16px;
+}
+
+.wf-form-radio-cards .wf-form-radio-option input[type="radio"] {
+  display: none;
+}
+
+.wf-form-radio-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.wf-form-radio-desc {
+  font-size: 13px;
+  color: var(--wf-text-secondary);
+  line-height: 1.4;
+}
+
+/* Toggle */
+
+.wf-form-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.wf-form-toggle-track {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--wf-border);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.wf-form-toggle-track--on {
+  background: var(--wf-primary);
+}
+
+.wf-form-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.wf-form-toggle-track--on .wf-form-toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* Checkbox */
+
+.wf-form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.wf-form-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--wf-primary);
+}
+
+/* ── Info Step ── */
+
+.wf-info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.wf-info-card {
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--wf-radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.wf-info-card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.wf-info-card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--wf-text);
+  margin-bottom: 4px;
+}
+
+.wf-info-card-title {
+  font-size: 13px;
+  color: var(--wf-text-secondary);
+  font-weight: 500;
+}
+
+.wf-info-text {
+  font-size: 15px;
+  color: var(--wf-text);
+  line-height: 1.6;
+}
+
+/* ── Review Step ── */
+
+.wf-review {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wf-review-section {
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--wf-radius);
+  padding: 20px 24px;
+}
+
+.wf-review-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wf-text);
+  margin: 0 0 14px;
+}
+
+.wf-review-fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wf-review-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--wf-border);
+}
+
+.wf-review-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.wf-review-field dt {
+  font-size: 14px;
+  color: var(--wf-text-secondary);
+  font-weight: 400;
+}
+
+.wf-review-field dd {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--wf-text);
+  margin: 0;
+}
+
+/* ── Download Step ── */
+
+.wf-download {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wf-download-message {
+  text-align: center;
+  padding: 24px;
+}
+
+.wf-download-message svg {
+  margin-bottom: 12px;
+}
+
+.wf-download-message p {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--wf-text);
+  margin: 0;
+}
+
+.wf-download-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.wf-download-summary-item {
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--wf-radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.wf-download-summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--wf-text-secondary);
+  margin-bottom: 4px;
+}
+
+.wf-download-summary-value {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wf-text);
+}
+
+.wf-download-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wf-download-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--wf-surface);
+  border: 1px solid var(--wf-border);
+  border-radius: var(--wf-radius);
+  transition: border-color 0.15s;
+}
+
+.wf-download-card--primary {
+  border-color: var(--wf-primary);
+  background: rgba(37, 99, 235, 0.02);
+}
+
+.wf-download-card-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.wf-download-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wf-download-card-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wf-text);
+  margin: 0 0 2px;
+}
+
+.wf-download-card-desc {
+  font-size: 13px;
+  color: var(--wf-text-secondary);
+  margin: 0;
+}
+
+.wf-download-card-format {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wf-text-secondary);
+  background: var(--wf-background);
+  border: 1px solid var(--wf-border);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
